@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "org.polyfrost.waveycapes.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "CapeFeatureRendererMixin",
+    "PlayerEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

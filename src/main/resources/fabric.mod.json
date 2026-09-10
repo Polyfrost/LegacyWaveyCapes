@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+
+  "id": "legacy-waveycapes",
+  "version": "${version}",
+  "name": "LegacyWaveyCapes",
+  "description": "Simulated, waving capes for Fabric 1.8.9.",
+
+  "authors": [
+    {
+      "name": "Lunasa (ohlunasa)",
+      "contact": {
+        "email": "me@lunasa.dev",
+        "homepage": "https://lunasa.dev"
+      }
+    }
+  ],
+
+  "license": "GPL-3.0-only",
+  "icon": "assets/legacy-waveycapes/icon.png",
+  "environment": "client",
+
+  "entrypoints": {
+    "client-init": [
+      "org.polyfrost.waveycapes.WaveyCapesEntrypoint"
+    ]
+  },
+
+  "mixins": [
+    "legacy-waveycapes.mixins.json"
+  ],
+
+  "depends": {
+    "minecraft": "1.8.9",
+    "fabricloader": ">=0.18.0",
+    "osl-config": ">=0.6.0",
+    "osl-entrypoints": ">=0.6.0"
+  }
+}

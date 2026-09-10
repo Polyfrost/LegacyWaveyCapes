@@ -1,0 +1,20 @@
+[versions]
+waveycapes = "1.0.0"
+kotlin = "2.4.10"
+loom = "1.17-SNAPSHOT"
+minecraft = "1.8.9"
+fabric-loader = "0.19.0"
+legacy-yarn = "1.8.9+build.4"
+devauth = "1.2.2"
+osl = "0.20.0"
+
+[libraries]
+minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
+fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
+legacy-yarn = { module = "net.legacyfabric:legacy-yarn", version.ref = "legacy-yarn" }
+devauth-fabric = { module = "me.djtheredstoner:DevAuth-fabric", version.ref = "devauth" }
+
+[plugins]
+fabric-loom = { id = "net.fabricmc.fabric-loom-remap", version.ref = "loom" }
+ploceus = { id = "ploceus", version.ref = "loom" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
