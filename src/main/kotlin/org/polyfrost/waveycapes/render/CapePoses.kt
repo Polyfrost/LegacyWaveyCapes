@@ -15,13 +15,19 @@ class CapePoses {
 
     private var windPhase = 0.0
     private var windy = false
+    private var sneaking = false
 
     fun build(player: AbstractClientPlayerEntity, simulation: CapeSimulation?, delta: Float) {
         val underwater = player.isSubmergedIn(Material.WATER)
         windy = WaveyCapesConfig.windMode.get() == WindMode.WAVES
         windPhase = (System.currentTimeMillis() / (if (underwater) 9 else 3) % 360).toDouble()
+        sneaking = player.isSneaking
 
         if (simulation == null) vanilla(player, delta) else simulated(simulation, delta)
+    }
+
+    private fun applySneak(pose: Pose) {
+        if (sneaking) pose.translate(0f, SNEAK_DROP, 0f)
     }
 
     private fun vanilla(player: AbstractClientPlayerEntity, delta: Float) {
@@ -40,7 +46,7 @@ class CapePoses {
         val bob = lerp(player.prevStrideDistance, player.strideDistance, delta)
         val walked = lerp(player.prevHorizontalSpeed, player.horizontalSpeed, delta)
         height += MathHelper.sin(walked * 6f) * 32f * bob
-        if (player.isSneaking) height += 25f
+        if (sneaking) height += SNEAK_ANGLE
 
         for (part in 0 until CAPE_PARTS) {
             val ease = easeOutSine(part.toFloat() / CAPE_PARTS)
@@ -49,6 +55,7 @@ class CapePoses {
             val pose = poses[part]
             pose.identity()
             pose.translate(0f, 0f, SHOULDER_OFFSET)
+            applySneak(pose)
             pose.rotateX(REST_ANGLE + partSwing / 2f + height + windSwing(part))
             pose.rotateZ(lean / 2f)
             pose.rotateY(180f - lean / 2f)
@@ -71,7 +78,8 @@ class CapePoses {
             val pose = poses[part]
             pose.identity()
             pose.translate(0f, 0f, SHOULDER_OFFSET)
-            pose.rotateX(REST_ANGLE + windSwing(part))
+            applySneak(pose)
+            pose.rotateX(REST_ANGLE + sneakAngle() + windSwing(part))
             pose.rotateY(180f)
             pose.translate(-offsetZ / CAPE_PARTS, offsetY / CAPE_PARTS, offsetX / CAPE_PARTS)
             pose.translate(0f, pivotY, pivotZ)
@@ -93,6 +101,8 @@ class CapePoses {
         return (sin(Math.toRadians(reach * 360.0 - windPhase)) * WIND_STRENGTH).toFloat()
     }
 
+    private fun sneakAngle() = if (sneaking) SNEAK_ANGLE else 0f
+
     private fun easeOutSine(progress: Float) = MathHelper.sin(progress * QUARTER_TURN)
 
     private fun lerp(from: Double, to: Double, delta: Float) = from + (to - from) * delta
@@ -106,6 +116,9 @@ class CapePoses {
         const val QUARTER_TURN = 1.5707964f
         const val SHOULDER_OFFSET = 0.125f
         const val REST_ANGLE = 6f
+
+        const val SNEAK_ANGLE = 25f
+        const val SNEAK_DROP = 0.15f
 
         const val PIVOT_INSET = 0.48f
         const val WIND_STRENGTH = 3.0
