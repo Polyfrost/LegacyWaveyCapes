@@ -13,6 +13,9 @@ object CapeLayer {
     private val mesh = CapeMesh()
 
     @JvmStatic
+    fun enabled(): Boolean = true
+
+    @JvmStatic
     fun render(player: AbstractClientPlayerEntity, delta: Float) {
         if (player.isInvisible || !player.isPartVisible(PlayerModelPart.CAPE)) return
         val cape = player.capeTexture ?: return

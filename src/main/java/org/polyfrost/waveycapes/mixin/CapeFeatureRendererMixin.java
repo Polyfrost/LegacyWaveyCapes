@@ -19,6 +19,7 @@ public abstract class CapeFeatureRendererMixin {
         AbstractClientPlayerEntity player, float limbAngle, float limbDistance, float tickDelta,
         float animationProgress, float headYaw, float headPitch, float scale, CallbackInfo ci
     ) {
+        if (!CapeLayer.enabled()) return;
         ci.cancel();
         CapeLayer.render(player, tickDelta);
     }
