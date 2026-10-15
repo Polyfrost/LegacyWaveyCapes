@@ -1,5 +1,5 @@
 [versions]
-waveycapes = "1.0.0"
+waveycapes = "1.0.1"
 kotlin = "2.4.10"
 loom = "1.17-SNAPSHOT"
 minecraft = "1.8.9"
