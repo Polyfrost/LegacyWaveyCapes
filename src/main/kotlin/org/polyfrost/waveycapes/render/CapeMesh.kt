@@ -6,6 +6,7 @@ import net.minecraft.client.render.VertexFormats
 import org.lwjgl.opengl.GL11
 import org.polyfrost.waveycapes.WaveyCapes.CAPE_PARTS
 import kotlin.math.max
+import kotlin.math.sqrt
 
 class CapeMesh {
     private val vertices = FloatArray(4 * VERTEX_SIZE)
@@ -60,7 +61,6 @@ class CapeMesh {
         corner(1, top, -HALF_WIDTH, yTop, 0f, 0 * PIXEL_U, vTop)
         corner(2, bottom, -HALF_WIDTH, yBottom, 0f, 0 * PIXEL_U, vBottom)
         corner(3, bottom, -HALF_WIDTH, yBottom, -DEPTH, 1 * PIXEL_U, vBottom)
-        wallNormal()
     }
 
     private fun east(top: Pose, bottom: Pose, part: Int) {
@@ -72,7 +72,6 @@ class CapeMesh {
         corner(1, top, HALF_WIDTH, yTop, -DEPTH, 11 * PIXEL_U, vTop)
         corner(2, bottom, HALF_WIDTH, yBottom, -DEPTH, 11 * PIXEL_U, vBottom)
         corner(3, bottom, HALF_WIDTH, yBottom, 0f, 12 * PIXEL_U, vBottom)
-        wallNormal()
     }
 
     private fun front(top: Pose, bottom: Pose, part: Int) {
@@ -84,7 +83,6 @@ class CapeMesh {
         corner(1, top, -HALF_WIDTH, yTop, -DEPTH, 1 * PIXEL_U, vTop)
         corner(2, bottom, -HALF_WIDTH, yBottom, -DEPTH, 1 * PIXEL_U, vBottom)
         corner(3, bottom, HALF_WIDTH, yBottom, -DEPTH, 11 * PIXEL_U, vBottom)
-        wallNormal()
     }
 
     private fun back(top: Pose, bottom: Pose, part: Int) {
@@ -96,7 +94,6 @@ class CapeMesh {
         corner(1, top, HALF_WIDTH, yTop, 0f, 12 * PIXEL_U, vTop)
         corner(2, bottom, HALF_WIDTH, yBottom, 0f, 12 * PIXEL_U, vBottom)
         corner(3, bottom, -HALF_WIDTH, yBottom, 0f, 22 * PIXEL_U, vBottom)
-        wallNormal()
     }
 
     private fun topCap(pose: Pose, part: Int, textureRow: Int) {
@@ -107,7 +104,6 @@ class CapeMesh {
         corner(1, pose, -HALF_WIDTH, y, 0f, 1 * PIXEL_U, vMin)
         corner(2, pose, -HALF_WIDTH, y, -DEPTH, 1 * PIXEL_U, vMax)
         corner(3, pose, HALF_WIDTH, y, -DEPTH, 11 * PIXEL_U, vMax)
-        normal(0f, 1f, 0f)
     }
 
     private fun bottomCap(pose: Pose, part: Int, textureRow: Int) {
@@ -118,21 +114,9 @@ class CapeMesh {
         corner(1, pose, -HALF_WIDTH, y, -DEPTH, 11 * PIXEL_U, vMin)
         corner(2, pose, -HALF_WIDTH, y, 0f, 11 * PIXEL_U, vMax)
         corner(3, pose, HALF_WIDTH, y, 0f, 21 * PIXEL_U, vMax)
-        wallNormal()
     }
 
     private fun sideV(part: Int) = (part + 1) * PIXEL_V
-
-    private fun wallNormal() = normal(1f, 0f, 0f)
-
-    private fun normal(x: Float, y: Float, z: Float) {
-        for (vertex in 0..3) {
-            val offset = vertex * VERTEX_SIZE + NORMAL
-            vertices[offset] = x
-            vertices[offset + 1] = y
-            vertices[offset + 2] = z
-        }
-    }
 
     private fun corner(index: Int, pose: Pose, x: Float, y: Float, z: Float, u: Float, v: Float) {
         val offset = index * VERTEX_SIZE
@@ -144,6 +128,22 @@ class CapeMesh {
     }
 
     private fun emit(builder: BufferBuilder) {
+        val ax = vertices[0] - vertices[VERTEX_SIZE]
+        val ay = vertices[1] - vertices[VERTEX_SIZE + 1]
+        val az = vertices[2] - vertices[VERTEX_SIZE + 2]
+        val bx = vertices[2 * VERTEX_SIZE] - vertices[VERTEX_SIZE]
+        val by = vertices[2 * VERTEX_SIZE + 1] - vertices[VERTEX_SIZE + 1]
+        val bz = vertices[2 * VERTEX_SIZE + 2] - vertices[VERTEX_SIZE + 2]
+        var nx = by * az - bz * ay
+        var ny = bz * ax - bx * az
+        var nz = bx * ay - by * ax
+        val length = sqrt(nx * nx + ny * ny + nz * nz)
+        if (length > 0f) {
+            nx /= length
+            ny /= length
+            nz /= length
+        }
+
         for (vertex in 0..3) {
             val offset = vertex * VERTEX_SIZE
             builder
@@ -153,14 +153,13 @@ class CapeMesh {
                     vertices[offset + 2].toDouble(),
                 )
                 .texture(vertices[offset + 3].toDouble(), vertices[offset + 4].toDouble())
-                .normal(vertices[offset + 5], vertices[offset + 6], vertices[offset + 7])
+                .normal(nx, ny, nz)
                 .next()
         }
     }
 
     private companion object {
-        const val VERTEX_SIZE = 8
-        const val NORMAL = 5
+        const val VERTEX_SIZE = 5
 
         const val HALF_WIDTH = 5f / 16f
         const val DEPTH = 1f / 16f
