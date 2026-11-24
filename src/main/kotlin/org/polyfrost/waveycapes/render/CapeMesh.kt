@@ -153,9 +153,10 @@ class CapeMesh {
                     vertices[offset + 2].toDouble(),
                 )
                 .texture(vertices[offset + 3].toDouble(), vertices[offset + 4].toDouble())
-                .normal(nx, ny, nz)
+                .normal(0f, 0f, 0f)
                 .next()
         }
+        builder.putNormal(nx, ny, nz)
     }
 
     private companion object {
